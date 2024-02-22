@@ -1,11 +1,15 @@
 trigger:
 - main
+- develop
+- feature/*
 
 pool:
   vmImage: 'ubuntu-latest'
 
+
 variables:
   buildConfiguration: 'Release'
+
 
 steps:
 - task: DotNetCoreCLI@2
@@ -14,8 +18,18 @@ steps:
     arguments: '--configuration $(buildConfiguration)'
   displayName: 'dotnet build $(buildConfiguration)'
 
+
 - task: DotNetCoreCLI@2
   inputs:
     command: 'publish'
     arguments: '--configuration $(buildConfiguration)'
+    publishWebProjects: true
   displayName: 'dotnet build $(buildConfiguration)'
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'newservice'
+    appType: 'webAppLinux'
+    appName: 'newwebappservice1'
+    package: '$(System.DefaultWorkingDirectory)/**/*.zip'
+    runtimeStack: 'DOTNETCORE|6.0'
